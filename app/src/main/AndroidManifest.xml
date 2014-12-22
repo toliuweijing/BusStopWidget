@@ -26,5 +26,7 @@
         </receiver>
 
         <service android:name=".MapWidgetService"/>
+
     </application>
+    <permission android:name="android.permission.INTERNET"/>
 </manifest>

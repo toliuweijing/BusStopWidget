@@ -15,11 +15,12 @@
             android:id="@+id/text_view"
             android:layout_gravity="center_horizontal|top" android:singleLine="true" android:textSize="15sp"
             android:fontFamily="sans-serif"
-            android:textStyle="bold"/>
+            android:textStyle="bold" android:textColor="@android:color/black"/>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="3 stops away"
-            android:id="@+id/status_text_view" android:layout_gravity="center_horizontal"/>
+            android:id="@+id/status_text_view" android:layout_gravity="center_horizontal"
+            android:textColor="@android:color/black"/>
 
 </LinearLayout>

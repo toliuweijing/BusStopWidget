@@ -10,9 +10,7 @@ public class MapWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
-
         dispatchToService(context, appWidgetIds);
-
     }
 
     private void dispatchToService(Context context, int[] appWidgetIds) {

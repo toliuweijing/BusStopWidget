@@ -6,10 +6,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.widget.RemoteViews;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import network.Request;
 
 public class MapWidgetService extends Service {
 
     public static final String EXTRA_WIDGET_IDS = "extra_widget_ids";
+
+    private RequestQueue mRequestQueue;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        mRequestQueue = Volley.newRequestQueue(this);
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
