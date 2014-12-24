@@ -2,16 +2,57 @@ package com.polythinking.mapwidget.app;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
+import model.SiriResponse;
+import network.RestApis;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 
 public class MainActivity extends Activity {
+
+    RequestQueue mRequestQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mRequestQueue = Volley.newRequestQueue(this);
+
+        String url = RestApis.Siri.stopMonitoring(
+                RestApis.SAMPLE_STOP_CODE,
+                RestApis.SAMPLE_LINE_REF).toString();
+        Log.d("jing", url);
+        JsonObjectRequest request = new JsonObjectRequest(
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        ObjectMapper mapper = new ObjectMapper();
+                        try {
+                            SiriResponse siri = mapper.readValue(response.toString(), SiriResponse.class);
+                            Log.d("jing", "yes");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d("jing", response.toString());
+                    }
+                },
+                null);
+        mRequestQueue.add(request);
+
     }
 
 
