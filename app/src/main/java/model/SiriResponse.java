@@ -3,42 +3,75 @@ package model;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
 public class SiriResponse {
+
+  public static SiriResponse read(JSONObject jsonObject) throws IOException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    return objectMapper.readValue(jsonObject.toString(), SiriResponse.class);
+  }
 
   @JsonProperty("Siri")
   public Siri siri;
 
-  @JsonIgnoreProperties(ignoreUnknown=true)
   public static class Siri {
     @JsonProperty("ServiceDelivery")
     public ServiceDelivery serviceDelivery;
 
 
-    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class ServiceDelivery {
       @JsonProperty("StopMonitoringDelivery")
       public List<StopMonitoringDelivery> stopMonitoringDeliveryConnection;
 
 
-      @JsonIgnoreProperties(ignoreUnknown=true)
       public static class StopMonitoringDelivery {
         @JsonProperty("MonitoredStopVisit")
         public List<MonitoredStopVisit> monitoredStopVisitConnection;
 
 
-        @JsonIgnoreProperties(ignoreUnknown=true)
         public static class MonitoredStopVisit {
           @JsonProperty("MonitoredVehicleJourney")
           public MonitoredVehicleJourney monitoredVehicleJourney;
 
-          @JsonIgnoreProperties(ignoreUnknown=true)
           public static class MonitoredVehicleJourney {
             @JsonProperty("LineRef")
             public String lineRef;
+
+            @JsonProperty("DirectionRef")
+            public int directionRef;
+
+            @JsonProperty("DestinationName")
+            public String destinationName;
+
+            @JsonProperty("MonitoredCall")
+            public MonitoredCall monitoredCall;
+
+            public static class MonitoredCall {
+              @JsonProperty("Extensions")
+              public Extensions extensions;
+
+              public static class Extensions {
+                @JsonProperty("Distances")
+                public Distances distances;
+
+                public static class Distances {
+                  @JsonProperty("PresentableDistance")
+                  public String presentableDistance;
+
+                  @JsonProperty("StopsFromCall")
+                  public int stopsFromCall;
+                }
+              }
+            }
+
           }
         }
       }

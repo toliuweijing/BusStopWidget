@@ -9,6 +9,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 
@@ -40,10 +42,9 @@ public class MainActivity extends Activity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        ObjectMapper mapper = new ObjectMapper();
                         try {
-                            SiriResponse siri = mapper.readValue(response.toString(), SiriResponse.class);
-                            Log.d("jing", "yes");
+                            SiriResponse siriResponse = SiriResponse.read(response);
+                            Log.d("jing", "pass");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
