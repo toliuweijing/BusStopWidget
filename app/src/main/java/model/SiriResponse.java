@@ -51,6 +51,9 @@ public class SiriResponse {
             @JsonProperty("DestinationName")
             public String destinationName;
 
+            @JsonProperty("PublishedLineName")
+            public String publishedLineName;
+
             @JsonProperty("MonitoredCall")
             public MonitoredCall monitoredCall;
 
