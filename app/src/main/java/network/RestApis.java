@@ -19,7 +19,7 @@ public class RestApis {
     public static final String PARAM_MONITORING_REF = "MonitoringRef";
     public static final String PARAM_LINE_REF = "LineRef";
 
-    public static final int SAMPLE_STOP_CODE = 300067;
+    public static final int SAMPLE_STOP_CODE = 307200;
     public static final String SAMPLE_LINE_REF = "MTA NYCT_B9";
 
     public static class Siri {

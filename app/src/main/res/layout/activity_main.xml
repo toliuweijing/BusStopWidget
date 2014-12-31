@@ -2,11 +2,12 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context=".MainActivity" android:orientation="vertical" android:background="@android:color/white"
-                android:longClickable="true">
+                tools:context=".MainActivity" android:orientation="vertical" android:background="@drawable/card"
+                android:longClickable="true"
+                android:divider="@drawable/divider" android:showDividers="end">
 
     <TextView
-            android:text="NEARBY"
+            android:text="Bay Ridge Av/Narrows Av"
             android:layout_width="fill_parent"
             android:layout_height="60dp"
             android:id="@+id/top_header"
@@ -16,35 +17,45 @@
             android:background="@android:color/black" android:gravity="center_vertical|center_horizontal"/>
     <LinearLayout
             android:orientation="horizontal"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:paddingRight="5dp" android:paddingLeft="5dp"
-            >
+            android:layout_width="fill_parent"
+            android:layout_height="120dp" android:paddingLeft="10dp" android:paddingRight="10dp">
         <TextView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:text="B9"
                 android:id="@+id/icon" android:background="@drawable/circle" android:gravity="center_vertical|center_horizontal"
-                android:textColor="@android:color/white"/>
-        <FrameLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent" android:layout_marginLeft="10dp">
+                android:textColor="@android:color/white" android:textSize="18sp" android:layout_gravity="center_vertical|left"/>
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent" android:layout_weight="1" android:layout_marginLeft="10dp"
+                android:gravity="center_vertical">
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="To KINGS PLAZA via 60 ST via asdffffffffff"
+                    android:id="@+id/direction_text"
+                    android:textColor="#ff7f7f7f"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:scrollHorizontally="true"
+                    android:maxLines="1"/>
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="to Bay Ridge Ave"
-                    android:id="@+id/direction_text" android:layout_gravity="center_vertical|left"
-                    android:textColor="@android:color/black" android:singleLine="true" android:capitalize="words"
-                    android:ellipsize="end" android:maxWidth="150dp"/>
-            <TextView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:text="3 stops"
-                    android:id="@+id/presentable_distance_text" android:layout_gravity="center_vertical|right"
-                    android:gravity="center_vertical|center_horizontal" android:textColor="@android:color/black"
-                    />
-        </FrameLayout>
+                    android:text="9:04 AM  9:09 AM  9:16 AM"
+                    android:id="@+id/schedule_time_text" android:layout_marginTop="10dp" android:textStyle="bold"
+                    android:textColor="@android:color/black"/>
+        </LinearLayout>
+        <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="3 stops"
+                android:id="@+id/presentable_distance_text"
+                android:textColor="@android:color/black"
+                android:gravity="center_vertical|center_horizontal"
+                android:layout_alignParentEnd="false" android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
+                android:layout_gravity="center_vertical"/>
     </LinearLayout>
-
 </LinearLayout>
