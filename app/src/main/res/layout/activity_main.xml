@@ -6,15 +6,25 @@
                 android:longClickable="true"
                 android:divider="@drawable/divider" android:showDividers="end">
 
-    <TextView
-            android:text="Bay Ridge Av/Narrows Av"
+    <FrameLayout
             android:layout_width="fill_parent"
-            android:layout_height="60dp"
-            android:id="@+id/top_header"
-            android:layout_gravity="center_horizontal|top" android:singleLine="true" android:textSize="15sp"
-            android:fontFamily="sans-serif"
-            android:textStyle="bold" android:textColor="@android:color/white"
-            android:background="@android:color/black" android:gravity="center_vertical|center_horizontal"/>
+            android:layout_height="60dp">
+        <TextView
+                android:text="Bay Ridge Av/Narrows Av"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/top_header"
+                android:layout_gravity="center_horizontal|top" android:singleLine="true" android:textSize="15sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold" android:textColor="@android:color/white"
+                android:background="@android:color/black" android:gravity="center_vertical|center_horizontal"/>
+        <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/power_button" android:layout_gravity="left|center_vertical"
+                android:src="@android:drawable/ic_lock_power_off" android:background="@android:color/black"
+                android:alpha="1" android:tint="#ff58ff36" android:layout_marginLeft="10dp"/>
+    </FrameLayout>
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
@@ -33,7 +43,6 @@
             <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="To KINGS PLAZA via 60 ST via asdffffffffff"
                     android:id="@+id/direction_text"
                     android:textColor="@android:color/black"
                     android:singleLine="true"
@@ -43,19 +52,18 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="3 stops away "
                     android:id="@+id/presentable_distance_text"
                     android:textColor="@android:color/black"
                     android:gravity="center_vertical|center_horizontal"
                     android:layout_alignParentEnd="false" android:layout_alignParentRight="true"
                     android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
-                    android:layout_marginTop="5dp" android:textSize="13sp"/>
+                    android:layout_marginTop="5dp" android:textSize="10sp"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                      android:text="2.1 miles away (departure at 10:30am)" android:id="@+id/presentable_distance_text2"
+                      android:id="@+id/presentable_distance_text2"
                       android:textColor="@android:color/darker_gray" android:gravity="center_vertical|center_horizontal"
                       android:layout_alignParentEnd="false" android:layout_alignParentRight="true"
                       android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
-                      android:layout_marginTop="5dp" android:textSize="13sp"/>
+                      android:layout_marginTop="5dp" android:textSize="10sp"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

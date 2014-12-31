@@ -25,7 +25,7 @@
                        android:resource="@xml/map_widget_info" />
         </receiver>
 
-        <service android:name=".MapWidgetService"/>
+        <service android:name=".MapWidgetUpdateService"/>
 
     </application>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
