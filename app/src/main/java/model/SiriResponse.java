@@ -51,6 +51,9 @@ public class SiriResponse {
             @JsonProperty("DestinationName")
             public String destinationName;
 
+            @JsonProperty("OriginAimedDepartureTime")
+            public String originAimedDepartureTime;
+
             @JsonProperty("PublishedLineName")
             public String publishedLineName;
 

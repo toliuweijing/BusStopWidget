@@ -21,6 +21,10 @@ import network.RestApis;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MapWidgetService extends Service {
@@ -86,14 +90,43 @@ public class MapWidgetService extends Service {
         .stopMonitoringDeliveryConnection.get(0)
         .monitoredStopVisitConnection;
 
-    MonitoredVehicleJourney vehicleJourney = stopVisitList.get(0).monitoredVehicleJourney;
-    views.setTextViewText(R.id.icon, vehicleJourney.publishedLineName);
-    views.setTextViewText(R.id.direction_text, vehicleJourney.destinationName);
-    views.setTextViewText(
-        R.id.presentable_distance_text,
-        vehicleJourney.monitoredCall.extensions.distances.presentableDistance);
+    // --- 0
+    MonitoredVehicleJourney j0 = stopVisitList.get(0).monitoredVehicleJourney;
+    views.setTextViewText(R.id.icon, j0.publishedLineName);
+    views.setTextViewText(R.id.direction_text, j0.destinationName);
+    views.setTextViewText(R.id.presentable_distance_text, buildPresentableDistance(j0));
+
+    // ---- 1
+    MonitoredVehicleJourney j1 = stopVisitList.get(1).monitoredVehicleJourney;
+    views.setTextViewText(R.id.presentable_distance_text2, buildPresentableDistance(j1));
 
     return views;
+  }
+
+  public String buildPresentableDistance(MonitoredVehicleJourney j) {
+    boolean hasDepartureTime =
+        j.originAimedDepartureTime != null
+        && j.originAimedDepartureTime.length() > 0;
+
+    if (hasDepartureTime) {
+      Date date = parseDate(j.originAimedDepartureTime);
+      return "at terminal, depart at " + formatToDepartureTime(date);
+    }
+    return j.monitoredCall.extensions.distances.presentableDistance;
+  }
+
+  public Date parseDate(String text) {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    try {
+      return format.parse(text);
+    } catch (ParseException e) {
+      return null;
+    }
+  }
+
+  public String formatToDepartureTime(Date date) {
+    SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+    return format.format(date);
   }
 
   @Override

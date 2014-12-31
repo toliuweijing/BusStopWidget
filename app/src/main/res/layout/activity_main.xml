@@ -18,7 +18,7 @@
     <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="120dp" android:paddingLeft="10dp" android:paddingRight="10dp">
+            android:layout_height="100dp" android:paddingLeft="10dp" android:paddingRight="10dp">
         <TextView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
@@ -28,34 +28,34 @@
         <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="0dp"
-                android:layout_height="fill_parent" android:layout_weight="1" android:layout_marginLeft="10dp"
+                android:layout_height="fill_parent" android:layout_weight="1" android:layout_marginLeft="20dp"
                 android:gravity="center_vertical">
             <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="To KINGS PLAZA via 60 ST via asdffffffffff"
                     android:id="@+id/direction_text"
-                    android:textColor="#ff7f7f7f"
+                    android:textColor="@android:color/black"
                     android:singleLine="true"
                     android:ellipsize="end"
                     android:scrollHorizontally="true"
-                    android:maxLines="1"/>
+                    android:maxLines="1" android:textSize="13sp"/>
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="9:04 AM  9:09 AM  9:16 AM"
-                    android:id="@+id/schedule_time_text" android:layout_marginTop="10dp" android:textStyle="bold"
-                    android:textColor="@android:color/black"/>
+                    android:text="3 stops away "
+                    android:id="@+id/presentable_distance_text"
+                    android:textColor="@android:color/black"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:layout_alignParentEnd="false" android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
+                    android:layout_marginTop="5dp" android:textSize="13sp"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                      android:text="2.1 miles away (departure at 10:30am)" android:id="@+id/presentable_distance_text2"
+                      android:textColor="@android:color/darker_gray" android:gravity="center_vertical|center_horizontal"
+                      android:layout_alignParentEnd="false" android:layout_alignParentRight="true"
+                      android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
+                      android:layout_marginTop="5dp" android:textSize="13sp"/>
         </LinearLayout>
-        <TextView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:text="3 stops"
-                android:id="@+id/presentable_distance_text"
-                android:textColor="@android:color/black"
-                android:gravity="center_vertical|center_horizontal"
-                android:layout_alignParentEnd="false" android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
-                android:layout_gravity="center_vertical"/>
     </LinearLayout>
 </LinearLayout>
