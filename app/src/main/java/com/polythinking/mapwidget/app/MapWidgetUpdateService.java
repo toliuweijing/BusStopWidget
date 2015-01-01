@@ -16,6 +16,7 @@ import model.SiriResponse;
 import model.SiriResponse.Siri.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit;
 import model.SiriResponse.Siri.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit.MonitoredVehicleJourney;
 import network.RestApis;
+import org.apache.http.concurrent.FutureCallback;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MapWidgetUpdateService extends Service {
+  private static final String TAG = MapWidgetUpdateService.class.getName();
 
   public static final String EXTRA_WIDGET_IDS = "extra_widget_ids";
 
@@ -43,6 +45,81 @@ public class MapWidgetUpdateService extends Service {
     mRequestQueue = Volley.newRequestQueue(this);
   }
 
+  @Override
+  public int onStartCommand(Intent intent, int flags, int startId) {
+    Log.i(TAG, "onStartCommend");
+
+    final RemoteViews remoteViews = new RemoteViews(
+        getApplicationContext().getPackageName(),
+        R.layout.activity_main);
+
+    updatePowerButtonIfNeeded(remoteViews, intent);
+
+    Context context = getApplicationContext();
+    final AppWidgetManager appWidgetManager = AppWidgetManager
+        .getInstance(context);
+    final int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
+
+    if (mIsPowerOn) {
+      Log.d(TAG, "Power is on. Start fetching stop visits");
+      fetchStopVisits(
+          RestApis.SAMPLE_STOP_CODE,
+          RestApis.SAMPLE_LINE_REF,
+          new FutureCallback<SiriResponse>() {
+            @Override
+            public void completed(SiriResponse result) {
+              Log.d(TAG, "received SiriResponse");
+              updateRemoteViews(remoteViews, result);
+              appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
+            }
+
+            @Override
+            public void failed(Exception ex) {
+              // no-op
+            }
+
+            @Override
+            public void cancelled() {
+              // no-op
+            }
+          });
+    }
+
+    appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
+    return START_NOT_STICKY;
+  }
+
+  public void fetchStopVisits(int stopCode, String lineRef, final FutureCallback<SiriResponse> callback) {
+    String url = RestApis.Siri.stopMonitoring(
+        stopCode,
+        lineRef)
+        .toString();
+
+    JsonObjectRequest request = new JsonObjectRequest(
+        url,
+        null,
+        new Response.Listener<JSONObject>() {
+          @Override
+          public void onResponse(JSONObject response) {
+            try {
+              SiriResponse siriResponse = SiriResponse.read(response);
+              callback.completed(siriResponse);
+            } catch (IOException e) {
+              Log.w(TAG, "failed to parse response", e);
+              callback.failed(e);
+            }
+          }},
+        new Response.ErrorListener() {
+          @Override
+          public void onErrorResponse(VolleyError error) {
+            Log.w(TAG, "failed to retrieve response", error);
+            callback.failed(error);
+          }
+        });
+    mRequestQueue.add(request);
+  }
+
+
   private void updatePowerButtonIfNeeded(RemoteViews views, Intent intent) {
     if (intent.hasExtra(EXTRA_USER_ACTION)) {
       int action = intent.getIntExtra(EXTRA_USER_ACTION, -1);
@@ -55,55 +132,6 @@ public class MapWidgetUpdateService extends Service {
         }
       }
     }
-  }
-
-  @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
-    Log.i("jing", "onStartCommend");
-
-    Context context = getApplicationContext();
-
-    final RemoteViews remoteViews = new RemoteViews(
-        getApplicationContext().getPackageName(),
-        R.layout.activity_main);
-
-    updatePowerButtonIfNeeded(remoteViews, intent);
-
-    final AppWidgetManager appWidgetManager = AppWidgetManager
-        .getInstance(context);
-
-    final int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
-
-    Log.d("jing", "mIsPowerOn=" + String.valueOf(mIsPowerOn));
-    if (mIsPowerOn) {
-      String url = RestApis.Siri.stopMonitoring(
-          RestApis.SAMPLE_STOP_CODE,
-          RestApis.SAMPLE_LINE_REF).toString();
-
-      Response.Listener<JSONObject> listener = new Response.Listener<JSONObject>() {
-        @Override
-        public void onResponse(JSONObject response) {
-          try {
-            SiriResponse siriResponse = SiriResponse.read(response);
-            updateRemoteViews(remoteViews, siriResponse);
-            appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
-      };
-
-      JsonObjectRequest request = new JsonObjectRequest(url, null, listener, new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-          Log.d("jing", error.toString());
-        }
-      });
-      mRequestQueue.add(request);
-    }
-
-    appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
-    return START_NOT_STICKY;
   }
 
   public void updateRemoteViews(RemoteViews remoteViews, SiriResponse siriResponse) {

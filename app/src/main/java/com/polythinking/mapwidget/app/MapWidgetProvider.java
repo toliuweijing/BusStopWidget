@@ -6,10 +6,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.widget.RemoteViews;
-
-import java.util.Calendar;
 
 import static com.polythinking.mapwidget.app.MapWidgetUpdateService.USER_ACTION_POWER_BUTTON_CLICKED;
 
