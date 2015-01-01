@@ -43,13 +43,14 @@ public class MapWidgetProvider extends AppWidgetProvider {
             mPendingIntent);
 
         configurePowerButtonBroadcast(context, appWidgetIds);
+
     }
 
     private void configurePowerButtonBroadcast(Context context, int[] appWidgetIds) {
         Intent intent = MapWidgetUpdateService.prepareIntent(context, appWidgetIds);
         intent.putExtra(EXTRA_ACTION, VALUE_ACTION_POWER_BUTTON_CLICKED);
         PendingIntent pendingIntent =
-            PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         RemoteViews views = new RemoteViews(
             context.getPackageName(),

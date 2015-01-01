@@ -77,6 +77,7 @@ public class MapWidgetUpdateService extends Service {
 
     final int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
 
+    Log.d("jing", "mIsPowerOn=" + String.valueOf(mIsPowerOn));
     if (mIsPowerOn) {
       String url = RestApis.Siri.stopMonitoring(
           RestApis.SAMPLE_STOP_CODE,
