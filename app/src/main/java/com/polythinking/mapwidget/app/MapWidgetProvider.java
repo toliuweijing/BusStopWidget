@@ -6,66 +6,82 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.util.Calendar;
 
-import static com.polythinking.mapwidget.app.MapWidgetUpdateService.EXTRA_ACTION;
-import static com.polythinking.mapwidget.app.MapWidgetUpdateService.VALUE_ACTION_POWER_BUTTON_CLICKED;
+import static com.polythinking.mapwidget.app.MapWidgetUpdateService.USER_ACTION_POWER_BUTTON_CLICKED;
 
 public class MapWidgetProvider extends AppWidgetProvider {
 
-    private PendingIntent mPendingIntent;
+  @Override
+  public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    super.onUpdate(context, appWidgetManager, appWidgetIds);
 
+    configureAlermManager(context, appWidgetIds);
+    configurePowerButtonBroadcast(context, appWidgetIds);
+  }
 
+  private void configureAlermManager(Context context, int[] appWidgetIds) {
+    final AlarmManager m = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
-    @Override
-    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        super.onUpdate(context, appWidgetManager, appWidgetIds);
+    PendingIntent pendingIntent = PendingIntentStore.get(
+        context,
+        appWidgetIds,
+        PendingIntentStore.TYPE_ALERM_MANAGER);
 
-        final AlarmManager m = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    m.setRepeating(
+        AlarmManager.RTC,
+        System.currentTimeMillis(),
+        AlarmManager.INTERVAL_FIFTEEN_MINUTES / 30,
+        pendingIntent);
+  }
 
-        final Calendar TIME = Calendar.getInstance();
-        TIME.set(Calendar.MINUTE, 0);
-        TIME.set(Calendar.SECOND, 0);
-        TIME.set(Calendar.MILLISECOND, 0);
+  private void configurePowerButtonBroadcast(Context context, int[] appWidgetIds) {
+    PendingIntent pendingIntent = PendingIntentStore.get(
+        context,
+        appWidgetIds,
+        PendingIntentStore.TYPE_POWER_BUTTON_CLICKED);
 
-        Intent intent = MapWidgetUpdateService.prepareIntent(context, appWidgetIds);
+    RemoteViews views = new RemoteViews(
+        context.getPackageName(),
+        R.layout.activity_main);
 
-        if (mPendingIntent == null) {
-            mPendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        }
+    final AppWidgetManager appWidgetManager = AppWidgetManager
+        .getInstance(context);
+    views.setOnClickPendingIntent(R.id.power_button, pendingIntent);
+    appWidgetManager.updateAppWidget(appWidgetIds[0], views);
+  }
 
-        m.setRepeating(
-            AlarmManager.RTC,
-            TIME.getTime().getTime(),
-            AlarmManager.INTERVAL_FIFTEEN_MINUTES / 30,
-            mPendingIntent);
+  @Override
+  public void onDisabled(Context context) {
+    super.onDisabled(context);
+    final AlarmManager m = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    m.cancel(PendingIntentStore.get(context, null, PendingIntentStore.TYPE_ALERM_MANAGER));
+  }
 
-        configurePowerButtonBroadcast(context, appWidgetIds);
+  private static class PendingIntentStore {
+    private static final int TYPE_ALERM_MANAGER = 0;
+    private static final int TYPE_POWER_BUTTON_CLICKED = 1;
 
+    private static PendingIntent get(
+        Context context,
+        int[] appWidgetIds,
+        int type) {
+      Intent intent = null;
+      if (type == TYPE_ALERM_MANAGER) {
+        intent = MapWidgetUpdateService.prepareIntent(context, appWidgetIds);
+      } else if (type == TYPE_POWER_BUTTON_CLICKED) {
+        intent = MapWidgetUpdateService.prepareIntent(context, appWidgetIds, USER_ACTION_POWER_BUTTON_CLICKED);
+      }
+
+      // PendingIntent is globally cached and reused if there's a match.
+      // We pass in @type as a part of its key, which assures PendingIntent
+      // is reused only within the same @type.
+      PendingIntent pendingIntent =
+          PendingIntent.getService(context, type, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+      return pendingIntent;
     }
-
-    private void configurePowerButtonBroadcast(Context context, int[] appWidgetIds) {
-        Intent intent = MapWidgetUpdateService.prepareIntent(context, appWidgetIds);
-        intent.putExtra(EXTRA_ACTION, VALUE_ACTION_POWER_BUTTON_CLICKED);
-        PendingIntent pendingIntent =
-            PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
-        RemoteViews views = new RemoteViews(
-            context.getPackageName(),
-            R.layout.activity_main);
-
-        final AppWidgetManager appWidgetManager = AppWidgetManager
-            .getInstance(context);
-        views.setOnClickPendingIntent(R.id.power_button, pendingIntent);
-        appWidgetManager.updateAppWidget(appWidgetIds[0], views);
-    }
-
-    @Override
-    public void onDisabled(Context context) {
-        super.onDisabled(context);
-        final AlarmManager m = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        m.cancel(mPendingIntent);
-    }
+  }
 }

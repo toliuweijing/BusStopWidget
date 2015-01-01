@@ -2,11 +2,8 @@ package com.polythinking.mapwidget.app;
 
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -32,8 +29,8 @@ public class MapWidgetUpdateService extends Service {
 
   public static final String EXTRA_WIDGET_IDS = "extra_widget_ids";
 
-  public static final String EXTRA_ACTION = "extra_action";
-  public static final int VALUE_ACTION_POWER_BUTTON_CLICKED = 0;
+  public static final String EXTRA_USER_ACTION = "extra_action";
+  public static final int USER_ACTION_POWER_BUTTON_CLICKED = 0;
 
   private RequestQueue mRequestQueue;
 
@@ -47,9 +44,9 @@ public class MapWidgetUpdateService extends Service {
   }
 
   private void updatePowerButtonIfNeeded(RemoteViews views, Intent intent) {
-    if (intent.hasExtra(EXTRA_ACTION)) {
-      int action = intent.getIntExtra(EXTRA_ACTION, -1);
-      if (action == VALUE_ACTION_POWER_BUTTON_CLICKED) {
+    if (intent.hasExtra(EXTRA_USER_ACTION)) {
+      int action = intent.getIntExtra(EXTRA_USER_ACTION, -1);
+      if (action == USER_ACTION_POWER_BUTTON_CLICKED) {
         mIsPowerOn = !mIsPowerOn;
         if (mIsPowerOn) {
           views.setImageViewResource(R.id.power_button, android.R.drawable.ic_lock_power_off);
@@ -164,11 +161,6 @@ public class MapWidgetUpdateService extends Service {
     return TimeUnit.MILLISECONDS.toMinutes(milliseconds);
   }
 
-  public String formatToDepartureTime(Date date) {
-    SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-    return format.format(date);
-  }
-
   @Override
   public IBinder onBind(Intent intent) {
     return null;
@@ -180,9 +172,10 @@ public class MapWidgetUpdateService extends Service {
     return intent;
   }
 
-  public static void sendRequest(Context context, int[] widgetIds) {
+  public static Intent prepareIntent(Context context, int[] widgetIds, int userAction) {
     Intent intent = new Intent(context.getApplicationContext(), MapWidgetUpdateService.class);
     intent.putExtra(EXTRA_WIDGET_IDS, widgetIds);
-    context.startService(intent);
+    intent.putExtra(EXTRA_USER_ACTION, userAction);
+    return intent;
   }
 }
