@@ -21,9 +21,9 @@
         <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/power_button" android:layout_gravity="left|center_vertical"
-                android:src="@android:drawable/ic_lock_power_off" android:background="@android:color/black"
-                android:alpha="1" android:tint="#ff58ff36" android:layout_marginLeft="10dp"/>
+                android:id="@+id/power_button" android:layout_gravity="right|center_vertical"
+                android:src="@android:drawable/ic_lock_silent_mode_off" android:background="@android:color/black"
+                android:alpha="1" android:layout_marginRight="10dp"/>
     </FrameLayout>
     <LinearLayout
             android:orientation="horizontal"

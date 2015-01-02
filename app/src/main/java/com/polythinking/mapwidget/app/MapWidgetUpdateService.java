@@ -1,17 +1,25 @@
 package com.polythinking.mapwidget.app;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import model.SiriResponse;
 import model.SiriResponse.Siri.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit;
 import model.SiriResponse.Siri.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit.MonitoredVehicleJourney;
@@ -24,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class MapWidgetUpdateService extends Service {
@@ -36,7 +45,29 @@ public class MapWidgetUpdateService extends Service {
 
   private RequestQueue mRequestQueue;
 
-  private static boolean mIsPowerOn = true;
+  private enum PowerButton {
+    LOCKED, POWER_ON, ALERM;
+
+    private static final Map<PowerButton, Integer> drawableMap =
+        Maps.newHashMap(ImmutableMap.of(
+            LOCKED,
+            android.R.drawable.ic_lock_lock,
+            POWER_ON,
+            android.R.drawable.ic_lock_power_off,
+            ALERM,
+            android.R.drawable.ic_lock_silent_mode_off));
+
+    private PowerButton nextState() {
+      List<PowerButton> buttons = Lists.newArrayList(values());
+      int nextIndex = (buttons.indexOf(this) + 1) % buttons.size();
+      return buttons.get(nextIndex);
+    }
+
+    private int getDrawableId() {
+      return drawableMap.get(this);
+    }
+  }
+  private static PowerButton mPowerButton = PowerButton.POWER_ON;
 
   @Override
   public void onCreate() {
@@ -60,7 +91,7 @@ public class MapWidgetUpdateService extends Service {
         .getInstance(context);
     final int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
 
-    if (mIsPowerOn) {
+    if (mPowerButton != PowerButton.LOCKED) {
       Log.d(TAG, "Power is on. Start fetching stop visits");
       fetchStopVisits(
           RestApis.SAMPLE_STOP_CODE,
@@ -71,6 +102,7 @@ public class MapWidgetUpdateService extends Service {
               Log.d(TAG, "received SiriResponse");
               updateRemoteViews(remoteViews, result);
               appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
+              sendNotificationIfNeeded(result);
             }
 
             @Override
@@ -87,6 +119,40 @@ public class MapWidgetUpdateService extends Service {
 
     appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
     return START_NOT_STICKY;
+  }
+
+  public void sendNotificationIfNeeded(SiriResponse response) {
+    if (mPowerButton != PowerButton.ALERM) {
+      return;
+    }
+
+    if (response.siri.serviceDelivery.stopMonitoringDeliveryConnection.get(0).monitoredStopVisitConnection.isEmpty()) {
+      return;
+    }
+
+    if (response
+        .siri
+        .serviceDelivery
+        .stopMonitoringDeliveryConnection.get(0)
+        .monitoredStopVisitConnection
+        .get(0)
+        .monitoredVehicleJourney
+        .monitoredCall
+        .extensions.distances.stopsFromCall <= 2) {
+
+      Notification noti = new Notification.Builder(getApplicationContext())
+          .setDefaults(Notification.DEFAULT_ALL)
+          .build();
+      NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+      manager.notify(1, noti);
+
+      Context context = getApplicationContext();
+      CharSequence text = "A B9 bus is approaching";
+      int duration = Toast.LENGTH_SHORT;
+
+      Toast toast = Toast.makeText(context, text, duration);
+      toast.show();
+    }
   }
 
   public void fetchStopVisits(int stopCode, String lineRef, final FutureCallback<SiriResponse> callback) {
@@ -124,14 +190,10 @@ public class MapWidgetUpdateService extends Service {
     if (intent.hasExtra(EXTRA_USER_ACTION)) {
       int action = intent.getIntExtra(EXTRA_USER_ACTION, -1);
       if (action == USER_ACTION_POWER_BUTTON_CLICKED) {
-        mIsPowerOn = !mIsPowerOn;
-        if (mIsPowerOn) {
-          views.setImageViewResource(R.id.power_button, android.R.drawable.ic_lock_power_off);
-        } else {
-          views.setImageViewResource(R.id.power_button, android.R.drawable.ic_lock_lock);
-        }
+        mPowerButton = mPowerButton.nextState();
       }
     }
+    views.setImageViewResource(R.id.power_button, mPowerButton.getDrawableId());
   }
 
   public void updateRemoteViews(RemoteViews remoteViews, SiriResponse siriResponse) {
@@ -142,6 +204,9 @@ public class MapWidgetUpdateService extends Service {
         .monitoredStopVisitConnection;
 
     // --- 0
+    if (stopVisitList.isEmpty()) {
+      return;
+    }
     MonitoredVehicleJourney j0 = stopVisitList.get(0).monitoredVehicleJourney;
     remoteViews.setTextViewText(R.id.icon, j0.publishedLineName);
     remoteViews.setTextViewText(R.id.direction_text, j0.destinationName);
