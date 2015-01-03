@@ -51,4 +51,5 @@ dependencies {
     compile 'com.google.collections:google-collections:1.0'
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.0-rc1'
+    compile 'com.squareup.dagger:dagger:1.2.2'
 }

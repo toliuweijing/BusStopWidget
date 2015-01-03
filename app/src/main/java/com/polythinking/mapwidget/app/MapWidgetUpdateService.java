@@ -89,13 +89,16 @@ public class MapWidgetUpdateService extends Service {
     Context context = getApplicationContext();
     final AppWidgetManager appWidgetManager = AppWidgetManager
         .getInstance(context);
+
     final int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
+    WidgetDataStore dataStore = WidgetDataStore.Singleton.getInstance(context);
+    WidgetData widgetData = dataStore.get(appWidgetIds[0]);
 
     if (mPowerButton != PowerButton.LOCKED) {
       Log.d(TAG, "Power is on. Start fetching stop visits");
       fetchStopVisits(
-          RestApis.SAMPLE_STOP_CODE,
-          RestApis.SAMPLE_LINE_REF,
+          widgetData.getStopCode(),
+          widgetData.getLineRef(),
           new FutureCallback<SiriResponse>() {
             @Override
             public void completed(SiriResponse result) {
@@ -161,6 +164,8 @@ public class MapWidgetUpdateService extends Service {
         lineRef)
         .toString();
 
+    Log.d(TAG, "url="+url);
+
     JsonObjectRequest request = new JsonObjectRequest(
         url,
         null,
@@ -189,7 +194,9 @@ public class MapWidgetUpdateService extends Service {
   private void updatePowerButtonIfNeeded(RemoteViews views, Intent intent) {
     if (intent.hasExtra(EXTRA_USER_ACTION)) {
       int action = intent.getIntExtra(EXTRA_USER_ACTION, -1);
+      Log.d(TAG, EXTRA_USER_ACTION + " was triggered");
       if (action == USER_ACTION_POWER_BUTTON_CLICKED) {
+        Log.d(TAG, "power button clicked");
         mPowerButton = mPowerButton.nextState();
       }
     }
