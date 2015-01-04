@@ -24,8 +24,8 @@ public class WidgetDataStore {
   }
 
   public WidgetData get(int id) {
+    Log.d(TAG, "get " + id);
     String value = mSharedPreferences.getString(String.valueOf(id), null);
-//    Log.d(TAG, value);
     if (value == null) {
       return null;
     }
@@ -34,7 +34,6 @@ public class WidgetDataStore {
 
   public void set(WidgetData data) {
     String value = serialize(data);
-    Log.d(TAG, value);
     if (value != null) {
       mSharedPreferences.edit().putString(
           String.valueOf(data.getWidgetId()),

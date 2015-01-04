@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import network.RestApis;
 
 public class MapWidgetConfigActivity extends Activity {
+  private static final String TAG = MapWidgetConfigActivity.class.getName();
 
   private int mAppWidgetId;
 
@@ -21,10 +23,13 @@ public class MapWidgetConfigActivity extends Activity {
           AppWidgetManager.EXTRA_APPWIDGET_ID,
           AppWidgetManager.INVALID_APPWIDGET_ID);
 
+      Log.d(TAG, "receive WidgetId " + mAppWidgetId);
+
       WidgetData data = new WidgetData(
           mAppWidgetId,
           RestApis.SAMPLE_STOP_CODE,
-          RestApis.SAMPLE_LINE_REF);
+          RestApis.SAMPLE_LINE_REF,
+          WidgetMode.POWER_ON);
       WidgetDataStore.Singleton.getInstance(this).set(data);
     }
 

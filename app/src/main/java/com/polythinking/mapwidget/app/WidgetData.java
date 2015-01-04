@@ -12,15 +12,28 @@ public class WidgetData {
 
   private int stopCode;
 
-private String lineRef;
+  private String lineRef;
 
+  private WidgetMode mode;
+
+  // Needed for Jackson deserialization.
   public WidgetData() {
   }
 
-  public WidgetData(int widgetId, int stopCode, String lineRef) {
+  public WidgetData(
+      int widgetId,
+      int stopCode,
+      String lineRef,
+      WidgetMode mode) {
     this.widgetId = widgetId;
     this.stopCode = stopCode;
     this.lineRef = lineRef;
+    this.mode = mode;
+  }
+
+  @Override
+  public String toString() {
+    return "" + widgetId + stopCode + lineRef;
   }
 
   public String getLineRef() {
@@ -35,8 +48,12 @@ private String lineRef;
     return widgetId;
   }
 
-  @Override
-  public String toString() {
-    return "" + widgetId + stopCode + lineRef;
+  public WidgetMode getMode() {
+    return mode;
+  }
+
+  public void setWidgetMode(WidgetDataStore dataStore, WidgetMode mode) {
+    this.mode = mode;
+    dataStore.set(this);
   }
 }

@@ -6,8 +6,6 @@ import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -17,9 +15,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import com.google.common.base.Preconditions;
 import model.SiriResponse;
 import model.SiriResponse.Siri.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit;
 import model.SiriResponse.Siri.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit.MonitoredVehicleJourney;
@@ -32,7 +28,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class MapWidgetUpdateService extends Service {
@@ -44,88 +39,83 @@ public class MapWidgetUpdateService extends Service {
   public static final int USER_ACTION_POWER_BUTTON_CLICKED = 0;
 
   private RequestQueue mRequestQueue;
-
-  private enum PowerButton {
-    LOCKED, POWER_ON, ALERM;
-
-    private static final Map<PowerButton, Integer> drawableMap =
-        Maps.newHashMap(ImmutableMap.of(
-            LOCKED,
-            android.R.drawable.ic_lock_lock,
-            POWER_ON,
-            android.R.drawable.ic_lock_power_off,
-            ALERM,
-            android.R.drawable.ic_lock_silent_mode_off));
-
-    private PowerButton nextState() {
-      List<PowerButton> buttons = Lists.newArrayList(values());
-      int nextIndex = (buttons.indexOf(this) + 1) % buttons.size();
-      return buttons.get(nextIndex);
-    }
-
-    private int getDrawableId() {
-      return drawableMap.get(this);
-    }
-  }
-  private static PowerButton mPowerButton = PowerButton.POWER_ON;
+  private WidgetDataStore mWidgetDataStore;
+  private AppWidgetManager mAppWidgetManager;
+  private RemoteViews mRemoteViews;
 
   @Override
   public void onCreate() {
     super.onCreate();
 
     mRequestQueue = Volley.newRequestQueue(this);
+    mWidgetDataStore = WidgetDataStore.Singleton.getInstance(this);
+    mAppWidgetManager = AppWidgetManager.getInstance(this);
+    mRemoteViews = new RemoteViews(this.getPackageName(), R.layout.activity_main);
+  }
+
+  private boolean stopSelfIfNeeded() {
+    if (!MapWidgetProvider.isEnabled(this)) {
+      stopSelf();
+      return true;
+    }
+    return false;
   }
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    Log.i(TAG, "onStartCommend");
-
-    final RemoteViews remoteViews = new RemoteViews(
-        getApplicationContext().getPackageName(),
-        R.layout.activity_main);
-
-    updatePowerButtonIfNeeded(remoteViews, intent);
-
-    Context context = getApplicationContext();
-    final AppWidgetManager appWidgetManager = AppWidgetManager
-        .getInstance(context);
-
-    final int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
-    WidgetDataStore dataStore = WidgetDataStore.Singleton.getInstance(context);
-    WidgetData widgetData = dataStore.get(appWidgetIds[0]);
-
-    if (mPowerButton != PowerButton.LOCKED) {
-      Log.d(TAG, "Power is on. Start fetching stop visits");
-      fetchStopVisits(
-          widgetData.getStopCode(),
-          widgetData.getLineRef(),
-          new FutureCallback<SiriResponse>() {
-            @Override
-            public void completed(SiriResponse result) {
-              Log.d(TAG, "received SiriResponse");
-              updateRemoteViews(remoteViews, result);
-              appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
-              sendNotificationIfNeeded(result);
-            }
-
-            @Override
-            public void failed(Exception ex) {
-              // no-op
-            }
-
-            @Override
-            public void cancelled() {
-              // no-op
-            }
-          });
+    Log.i(TAG, "on run");
+    if (stopSelfIfNeeded()) {
+      Log.d(TAG, "stop self since there's no widget enabled");
+      return START_NOT_STICKY;
     }
 
-    appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
+    final int[] appWidgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
+
+    for (int widgetId : appWidgetIds) {
+      WidgetData data = mWidgetDataStore.get(widgetId);
+
+      if (data == null) {
+        Log.d(TAG, "data not found for id:" + widgetId);
+        continue;
+      }
+
+      onUpdateWidget(data);
+      updatePowerButtonIfNeeded(data, intent);
+    }
+
     return START_NOT_STICKY;
   }
 
-  public void sendNotificationIfNeeded(SiriResponse response) {
-    if (mPowerButton != PowerButton.ALERM) {
+  private void onUpdateWidget(final WidgetData widgetData) {
+    Log.d(TAG, "Power is on. Start fetching stop visits");
+    fetchStopVisits(
+        widgetData.getStopCode(),
+        widgetData.getLineRef(),
+        new FutureCallback<SiriResponse>() {
+          @Override
+          public void completed(SiriResponse result) {
+            Log.d(TAG, "received SiriResponse");
+            updateRemoteViews(mRemoteViews, result);
+            mAppWidgetManager.updateAppWidget(
+                widgetData.getWidgetId(),
+                mRemoteViews);
+            sendNotificationIfNeeded(widgetData, result);
+          }
+
+          @Override
+          public void failed(Exception ex) {
+            // no-op
+          }
+
+          @Override
+          public void cancelled() {
+            // no-op
+          }
+        });
+  }
+
+  public void sendNotificationIfNeeded(WidgetData data, SiriResponse response) {
+    if (data.getMode() != WidgetMode.ALERM) {
       return;
     }
 
@@ -191,16 +181,17 @@ public class MapWidgetUpdateService extends Service {
   }
 
 
-  private void updatePowerButtonIfNeeded(RemoteViews views, Intent intent) {
+  private void updatePowerButtonIfNeeded(WidgetData data, Intent intent) {
     if (intent.hasExtra(EXTRA_USER_ACTION)) {
       int action = intent.getIntExtra(EXTRA_USER_ACTION, -1);
       Log.d(TAG, EXTRA_USER_ACTION + " was triggered");
       if (action == USER_ACTION_POWER_BUTTON_CLICKED) {
         Log.d(TAG, "power button clicked");
-        mPowerButton = mPowerButton.nextState();
+        data.setWidgetMode(mWidgetDataStore, data.getMode().nextMode());
       }
     }
-    views.setImageViewResource(R.id.power_button, mPowerButton.getDrawableId());
+    Log.d(TAG, "id"+data.getWidgetId()+ " in Mode:" + data.getMode().toString());
+    mRemoteViews.setImageViewResource(R.id.power_button, data.getMode().getDrawableId());
   }
 
   public void updateRemoteViews(RemoteViews remoteViews, SiriResponse siriResponse) {
