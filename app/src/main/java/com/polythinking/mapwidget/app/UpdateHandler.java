@@ -47,12 +47,11 @@ public class UpdateHandler extends FastHandler {
     mRequestQueue = Volley.newRequestQueue(context);
     mAppWidgetManager = AppWidgetManager.getInstance(context);
     mWidgetDataStore = WidgetDataStore.Singleton.getInstance(context);
-    mRemoteViews = new RemoteViews(context.getPackageName(), R.layout.activity_main);
+    mRemoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_main_layout);
   }
 
   @Override
   public void onDispatch(Intent intent) {
-    //TODO: Checkin power button state
     int[] widgetIds = intent.getIntArrayExtra(EXTRA_WIDGET_IDS);
 
     for (int id : widgetIds) {
@@ -85,6 +84,7 @@ public class UpdateHandler extends FastHandler {
       return;
     }
     MonitoredVehicleJourney j0 = stopVisitList.get(0).monitoredVehicleJourney;
+    remoteViews.setTextViewText(R.id.top_header, j0.monitoredCall.stopPointName);
     remoteViews.setTextViewText(R.id.icon, j0.publishedLineName);
     remoteViews.setTextViewText(R.id.direction_text, j0.destinationName);
     remoteViews.setTextViewText(R.id.presentable_distance_text, buildPresentableDistance(j0));

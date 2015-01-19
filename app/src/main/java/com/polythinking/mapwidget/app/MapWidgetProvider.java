@@ -42,9 +42,9 @@ public class MapWidgetProvider extends AppWidgetProvider {
     return ids != null && ids.length > 0;
   }
 
-  private void configureAlermManager(Context context, AppWidgetManager appWidgetManager) {
+  public static void configureAlermManager(Context context, AppWidgetManager appWidgetManager) {
     final AlarmManager m = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-    int[] ids = appWidgetManager.getAppWidgetIds(new ComponentName(context, this.getClass()));
+    int[] ids = appWidgetManager.getAppWidgetIds(new ComponentName(context, MapWidgetProvider.class));
 
     Log.d(TAG, "ConfigureAlermManager start");
     for (int id : ids) {
@@ -63,7 +63,7 @@ public class MapWidgetProvider extends AppWidgetProvider {
         pendingIntent);
   }
 
-  private void configurePowerButtonBroadcast(Context context, int[] appWidgetIds) {
+  public static void configurePowerButtonBroadcast(Context context, int[] appWidgetIds) {
     for(int id : appWidgetIds) {
       Log.d(TAG, "configure power button " + id);
 
@@ -73,10 +73,14 @@ public class MapWidgetProvider extends AppWidgetProvider {
 
       RemoteViews views = new RemoteViews(
           context.getPackageName(),
-          R.layout.activity_main);
+          R.layout.widget_main_layout);
 
       final AppWidgetManager appWidgetManager = AppWidgetManager
           .getInstance(context);
+      WidgetData data = WidgetDataStore.Singleton.getInstance(context).get(id);
+      if (data != null && data.getMode() != null) {
+        views.setImageViewResource(R.id.power_button, data.getMode().getDrawableId());
+      }
       views.setOnClickPendingIntent(R.id.power_button, pendingIntent);
       appWidgetManager.updateAppWidget(id, views);
     }

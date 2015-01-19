@@ -28,6 +28,28 @@ public class RestApis {
             return new BasicNameValuePair(String.valueOf(s), String.valueOf(t));
         }
 
+        public static URI stopMonitoring(int stopCode) {
+          List<NameValuePair> params = Lists.newArrayList();
+          params.addAll(Lists.newArrayList(
+              newBasicNameValuePair(PARAM_KEY, VALUE_KEY),
+              newBasicNameValuePair(PARAM_MONITORING_REF, stopCode)));
+
+          URI uri = null;
+          try {
+            uri = new URIBuilder()
+                .setScheme("http")
+                .setHost(HOST_OBANYC_COM)
+                .setPort(PORT)
+                .setPath(QUERY_STOP_MONITORING_XML)
+                .addParameters(params)
+                .build();
+          } catch (URISyntaxException e) {
+            Preconditions.checkNotNull(null);
+            e.printStackTrace();
+          }
+          return uri;
+        }
+
         public static URI stopMonitoring(int stopCode, String lineRef) {
             List<NameValuePair> params = Lists.newArrayList();
             params.addAll(Lists.newArrayList(

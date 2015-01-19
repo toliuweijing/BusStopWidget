@@ -64,6 +64,9 @@ public class SiriResponse {
               @JsonProperty("Extensions")
               public Extensions extensions;
 
+              @JsonProperty("StopPointName")
+              public String stopPointName;
+
               public static class Extensions {
                 @JsonProperty("Distances")
                 public Distances distances;

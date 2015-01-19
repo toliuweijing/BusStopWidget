@@ -24,7 +24,7 @@ public class PowerButtonClickHandler extends FastHandler {
 
     mAppWidgetManager = AppWidgetManager.getInstance(context);
     mWidgetDataStore = WidgetDataStore.Singleton.getInstance(context);
-    mRemoteViews = new RemoteViews(context.getPackageName(), R.layout.activity_main);
+    mRemoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_main_layout);
   }
 
   @Override

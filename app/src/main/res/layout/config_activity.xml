@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" android:background="@android:color/white">
+    <EditText
+            android:id="@+id/stop_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    <Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="GET LINES"
+            android:id="@+id/get_lines_button" android:layout_gravity="center_horizontal"/>
+    <EditText android:id="@+id/line_ref" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SUBSCRIBE"
+            android:id="@+id/subscribe_button" android:layout_gravity="center_horizontal"/>
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:textIsSelectable="true"
+            android:id="@+id/lines_text" android:layout_gravity="center_horizontal" android:textSize="18sp"/>
+
+</LinearLayout>
