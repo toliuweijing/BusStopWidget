@@ -3,7 +3,6 @@ package com.polythinking.mapwidget.app;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import com.android.volley.toolbox.StringRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

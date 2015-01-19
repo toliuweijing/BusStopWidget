@@ -9,23 +9,17 @@ import java.util.List;
 public abstract class FastService extends Service {
   private static final String EXTRA_HANDLER_CLASS_NAME = "extra_handler_class_name";
 
-  @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
-    dispatch(intent);
-    return START_NOT_STICKY;
-  }
-
-  private void dispatch(Intent intent) {
-    List<FastHandler> handlers = getHandlers();
+  protected void dispatch(Intent intent) {
+    List<? extends FastHandler> handlers = getHandlers();
     String handlerName = intent.getStringExtra(EXTRA_HANDLER_CLASS_NAME);
     for (FastHandler handler : handlers) {
       if (handler.getClass().getName().equals(handlerName)) {
-        handler.onDispatch(this, intent);
+        handler.onDispatch(intent);
       }
     }
   }
 
-  protected abstract List<FastHandler> getHandlers();
+  protected abstract List<? extends FastHandler> getHandlers();
 
   public static Intent createIntent(
       Context context,

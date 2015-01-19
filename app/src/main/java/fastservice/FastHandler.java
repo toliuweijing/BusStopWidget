@@ -4,5 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 
 public abstract class FastHandler {
-  public abstract void onDispatch(Context context, Intent intent);
+  protected final Context mContext;
+
+  protected FastHandler(Context context) {
+    mContext = context;
+  }
+
+  public abstract void onDispatch(Intent intent);
 }

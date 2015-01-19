@@ -10,8 +10,6 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import static com.polythinking.mapwidget.app.MapWidgetUpdateService.USER_ACTION_POWER_BUTTON_CLICKED;
-
 public class MapWidgetProvider extends AppWidgetProvider {
   private static final String TAG = MapWidgetProvider.class.getName();
 
@@ -91,7 +89,7 @@ public class MapWidgetProvider extends AppWidgetProvider {
     private static PendingIntent onAlermManagerUpdate(
         Context context,
         int[] appWidgetIds) {
-      Intent intent = MapWidgetUpdateService.prepareIntent(context, appWidgetIds);
+      Intent intent = UpdateHandler.prepareIntent(context, appWidgetIds);
 
       // TYPE_ALERM_MAANAGER will be the unique id for this PendingIntent.
       // This is the only PendingIntent instance triggered by AlermManager every 30s.
@@ -106,10 +104,7 @@ public class MapWidgetProvider extends AppWidgetProvider {
     private static PendingIntent onPowerButtonClicked(
         Context context,
         int widgetid) {
-      Intent intent = MapWidgetUpdateService.prepareIntent(
-          context,
-          new int[]{widgetid},
-          USER_ACTION_POWER_BUTTON_CLICKED);
+      Intent intent = PowerButtonClickHandler.prepareIntent(context, widgetid);
       return PendingIntent.getService(context, widgetid, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
   }
